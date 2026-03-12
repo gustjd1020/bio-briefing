@@ -8,6 +8,7 @@ import AllNews from './components/AllNews'
 import KeywordNews from './components/KeywordNews'
 import DBViewer from './components/DBViewer'
 import CollectModal from './components/CollectModal'
+import LoginScreen from './components/LoginScreen'
 import './App.css'
 
 const TABS = [
@@ -24,6 +25,11 @@ export default function App() {
   const [selectedKeywordId, setSelectedKeywordId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [dbRefresh, setDbRefresh] = useState(0)
+
+  // ── 인증 ────────────────────────────────────
+  const [authed, setAuthed] = useState(() => {
+    return localStorage.getItem('auth') === 'true'
+  })
 
   // ── 테마 ────────────────────────────────────
   const [theme, setTheme] = useState(() => {
@@ -63,6 +69,16 @@ export default function App() {
   const handleTabChange = (tabId) => {
     setActiveTab(tabId)
     if (tabId !== 'keyword') setSelectedKeywordId(null)
+  }
+
+  // ── 미인증 시 로그인 화면 ────────────────────
+  if (!authed) {
+    return (
+      <LoginScreen
+        theme={theme}
+        onSuccess={() => setAuthed(true)}
+      />
+    )
   }
 
   return (
