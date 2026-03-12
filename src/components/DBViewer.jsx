@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import {
   getNews, getKeywords, getNewsKeywords, getTopicGroups,
-  downloadCSV, downloadAllAsZip,
+  downloadCSV, downloadAllAsZip, validateAllNewsUrls,
 } from '../data/db'
 
 const SUBTABS = [
@@ -11,8 +11,16 @@ const SUBTABS = [
   { id: 'topicGroup', label: 'TopicGroup', icon: '🗂️' },
 ]
 
-function TableView({ data, tableName, weekLabel }) {
+const URL_STATUS_BADGE = {
+  ok:      { icon: '✅', label: 'OK',      className: 'url-ok' },
+  error:   { icon: '❌', label: 'Error',   className: 'url-error' },
+  unknown: { icon: '⚠️', label: 'Unknown', className: 'url-unknown' },
+}
+
+function TableView({ data, tableName, weekLabel, onValidated }) {
   const [showJson, setShowJson] = useState(false)
+  const [validating, setValidating] = useState(false)
+  const [progress, setProgress] = useState({ done: 0, total: 0 })
 
   const columns = useMemo(() => {
     if (!data || data.length === 0) return []
@@ -23,11 +31,32 @@ function TableView({ data, tableName, weekLabel }) {
     ? `news_${weekLabel || 'all'}.csv`
     : `${tableName}.csv`
 
+  const handleValidate = useCallback(async () => {
+    setValidating(true)
+    setProgress({ done: 0, total: 0 })
+    await validateAllNewsUrls((done, total) => {
+      setProgress({ done, total })
+    })
+    setValidating(false)
+    onValidated && onValidated()
+  }, [onValidated])
+
   return (
     <div className="db-table-wrap">
       <div className="db-table-topbar">
         <span className="db-row-count">총 {data.length}건</span>
         <div className="db-table-actions">
+          {tableName === 'news' && (
+            <button
+              className="btn-url-validate"
+              onClick={handleValidate}
+              disabled={validating}
+            >
+              {validating
+                ? `🔍 검증 중… (${progress.done}/${progress.total})`
+                : '🔍 URL 전체 검증'}
+            </button>
+          )}
           <button
             className="btn-json-toggle"
             onClick={() => setShowJson((v) => !v)}
@@ -82,6 +111,14 @@ function TableView({ data, tableName, weekLabel }) {
 function formatCell(val, col) {
   if (val === null || val === undefined) return <span className="db-null">NULL</span>
   if (typeof val === 'boolean') return <span className={`db-bool db-bool-${val}`}>{val ? 'true' : 'false'}</span>
+  if (col === 'url_status') {
+    const badge = URL_STATUS_BADGE[val] || URL_STATUS_BADGE.unknown
+    return (
+      <span className={`url-status-badge ${badge.className}`}>
+        {badge.icon} {badge.label}
+      </span>
+    )
+  }
   if (col === 'url' && val && val !== '#') {
     return (
       <a href={val} target="_blank" rel="noopener noreferrer" className="db-link">
@@ -103,6 +140,7 @@ function formatCell(val, col) {
 
 export default function DBViewer({ refreshTrigger }) {
   const [activeTab, setActiveTab] = useState('news')
+  const [localRefresh, setLocalRefresh] = useState(0)
 
   const getData = () => {
     switch (activeTab) {
@@ -114,13 +152,13 @@ export default function DBViewer({ refreshTrigger }) {
     }
   }
 
-  const data = useMemo(getData, [activeTab, refreshTrigger])
+  const data = useMemo(getData, [activeTab, refreshTrigger, localRefresh])
 
   const currentWeek = useMemo(() => {
     const news = getNews()
     const weeks = [...new Set(news.map((n) => n.week_label))].filter(Boolean)
     return weeks.sort().reverse()[0] || 'all'
-  }, [refreshTrigger])
+  }, [refreshTrigger, localRefresh])
 
   return (
     <div className="tab-content db-viewer">
@@ -147,6 +185,7 @@ export default function DBViewer({ refreshTrigger }) {
         data={data}
         tableName={activeTab}
         weekLabel={currentWeek}
+        onValidated={() => setLocalRefresh((v) => v + 1)}
       />
     </div>
   )

@@ -802,6 +802,50 @@
   border-color: var(--accent-green);
 }
 
+.btn-url-validate {
+  background: rgba(59,130,246,.1);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,.3);
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: all .12s;
+  white-space: nowrap;
+}
+
+.btn-url-validate:hover:not(:disabled) {
+  background: rgba(59,130,246,.2);
+  border-color: #60a5fa;
+}
+
+.btn-url-validate:disabled {
+  opacity: .7;
+  cursor: wait;
+}
+
+/* URL 상태 배지 */
+.url-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.url-ok    { background: rgba(16,185,129,.12); color: #10b981; }
+.url-error { background: rgba(239,68,68,.12);  color: #f87171; }
+.url-unknown { background: rgba(234,179,8,.12); color: #fbbf24; }
+
+/* NewsCard 메타에서 url-status 배지는 아이콘만 */
+.news-card-meta .url-status-badge {
+  padding: 0;
+  background: transparent;
+  font-size: 13px;
+}
+
 .btn-export-all {
   background: rgba(139,92,246,.1);
   color: var(--accent-purple);

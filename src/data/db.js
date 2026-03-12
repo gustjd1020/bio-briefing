@@ -124,4 +124,28 @@ export const downloadAllAsZip = async () => {
   }
 }
 
+// ── URL 검증 ──────────────────────────────────
+// fetch no-cors: opaque response = 서버 도달 ✅ / 네트워크 에러 = ❌
+export const validateUrl = async (url) => {
+  if (!url || url === '#') return 'error'
+  try {
+    await fetch(url, { mode: 'no-cors', cache: 'no-store' })
+    return 'ok'
+  } catch {
+    return 'error'
+  }
+}
+
+export const validateAllNewsUrls = async (onProgress) => {
+  const list = getNews()
+  const updated = [...list]
+  for (let i = 0; i < updated.length; i++) {
+    const status = await validateUrl(updated[i].url)
+    updated[i] = { ...updated[i], url_status: status }
+    setNews(updated)
+    onProgress && onProgress(i + 1, updated.length)
+  }
+  return updated
+}
+
 export { KEYS }

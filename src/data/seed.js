@@ -1,13 +1,11 @@
 // ─────────────────────────────────────────────
-// 더미 데이터 시드 (localStorage 최초 초기화용)
+// 실제 논문/기사 시드 데이터 (localStorage 초기화용)
 // ─────────────────────────────────────────────
 
 export const seedTopicGroups = [
   { id: 1, title: 'Mirvetuximab 난소암 FDA 승인 관련' },
-  { id: 2, title: 'Olaparib 병용요법 임상 관련' },
-  { id: 3, title: 'CRISPR 유전자 편집 치료 관련' },
-  { id: 4, title: 'AlphaFold3 단백질 구조 관련' },
-  { id: 5, title: 'LLM 신약 개발 적용 관련' },
+  { id: 2, title: 'Olaparib 임상 관련' },
+  { id: 3, title: 'AI 신약 개발 관련' },
 ]
 
 export const seedKeywords = [
@@ -23,207 +21,104 @@ export const seedKeywords = [
 export const seedNews = [
   {
     id: 1,
-    title: 'FDA, Mirvetuximab Soravtansine 재발성 난소암 1차 승인',
+    title: 'FDA Approves ELAHERE (mirvetuximab soravtansine-gynx) for FRα-Positive Platinum-Resistant Ovarian Cancer',
     summary:
-      'ImmunoGen의 항체-약물 접합체(ADC) Mirvetuximab soravtansine(ELAHERE)이 FRα 과발현 백금 저항성 상피성 난소암 치료에 FDA 정식 승인을 받았다. MIRASOL Phase 3 임상에서 무진행생존기간(PFS) 중앙값 5.6개월 vs. 화학요법 3.8개월로 유의미한 개선을 보였다.',
-    url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2309169',
-    source_name: 'NEJM',
-    published_at: '2026-03-10',
+      'FDA가 FRα 과발현 백금 저항성 상피성 난소암 성인 환자 치료에 ImmunoGen의 항체-약물 접합체(ADC) mirvetuximab soravtansine(ELAHERE)을 정식 승인했다. 이는 FRα를 표적으로 한 최초의 FDA 승인 치료제다. SORAYA 단일군 임상에서 ORR 31.7%, 중앙 반응 지속기간 6.9개월을 기록했다.',
+    url: 'https://www.fda.gov/drugs/drug-approvals-and-databases/drug-approval-package-elahere-mirvetuximab-soravtansine-gynx',
+    source_name: 'FDA',
+    published_at: '2022-11-14',
     topic_group_id: 1,
-    week_label: '2026-W11',
+    week_label: '2022-W46',
     is_featured: true,
     is_bookmarked: false,
     notes: '',
+    url_status: 'unknown',
   },
   {
     id: 2,
-    title: 'Mirvetuximab, MIRASOL 연구 최종 OS 데이터 발표 — ASCO GU 2026',
+    title: 'Mirvetuximab Soravtansine in FRα-Positive, Platinum-Resistant Ovarian Cancer (MIRASOL)',
     summary:
-      'MIRASOL 임상의 최종 전체생존기간(OS) 업데이트가 ASCO GU 2026에서 공개됐다. OS 중앙값 16.5개월(mirvetuximab) vs. 12.7개월(화학요법)로, FRα 고발현 환자군에서 특히 뚜렷한 혜택이 확인됐다.',
-    url: 'https://ascopubs.org/doi/10.1200/JCO.2026.01.001',
-    source_name: 'ASCO',
-    published_at: '2026-03-09',
+      'MIRASOL Phase 3 무작위 대조 임상에서 mirvetuximab soravtansine이 백금 저항성 고위험 난소암 환자에서 무진행생존기간(PFS) 중앙값 5.62개월 vs. 화학요법 3.98개월(HR 0.65, p<0.001), 전체생존기간(OS) 중앙값 16.46개월 vs. 12.75개월(HR 0.67, p=0.0046)로 통계적으로 유의미한 개선을 보였다.',
+    url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2309169',
+    source_name: 'NEJM',
+    published_at: '2023-08-27',
     topic_group_id: 1,
-    week_label: '2026-W11',
+    week_label: '2023-W35',
     is_featured: true,
-    is_bookmarked: true,
-    notes: '팀 리뷰 예정 — 3월 넷째 주 저널클럽',
+    is_bookmarked: false,
+    notes: '',
+    url_status: 'unknown',
   },
   {
     id: 3,
-    title: 'Olaparib + Bevacizumab 병용, BRCA 변이 난소암 PFS 개선 확인',
+    title: 'Olaparib for Metastatic Breast Cancer in Patients with a Germline BRCA Mutation (OlympiAD)',
     summary:
-      'PAOLA-1 임상 추적 분석에서 Olaparib(린파자) + Bevacizumab 병용 유지요법이 BRCA1/2 변이 고위험 1기 난소암 환자의 5년 PFS를 대조군 대비 유의미하게 향상시켰다. HRD 양성 환자에서 효과 극대화.',
-    url: 'https://www.thelancet.com/journals/lanonc/article/PIIS1470-2045(26)00012-3/fulltext',
-    source_name: 'Lancet Oncology',
-    published_at: '2026-03-08',
+      'OlympiAD Phase 3 임상에서 생식세포 BRCA 변이 HER2 음성 전이성 유방암 환자에서 olaparib 단독요법이 의사 선택 화학요법 대비 PFS 중앙값 7.0개월 vs. 4.2개월(HR 0.58, p<0.001)로 유의미한 개선을 보였다. ORR은 59.9% vs. 28.8%였다. PARP 억제제의 유방암 적응증 확장 근거가 된 핵심 임상이다.',
+    url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1706450',
+    source_name: 'NEJM',
+    published_at: '2017-08-10',
     topic_group_id: 2,
-    week_label: '2026-W11',
-    is_featured: true,
+    week_label: '2017-W32',
+    is_featured: false,
     is_bookmarked: false,
     notes: '',
+    url_status: 'unknown',
   },
   {
     id: 4,
-    title: 'Olaparib 내성 기전 새롭게 규명 — RAD51 복원이 핵심',
+    title: 'Highly accurate protein structure prediction with AlphaFold',
     summary:
-      'Nature Medicine 연구팀이 Olaparib 내성 기전으로 RAD51 매개 상동재조합(HR) 복원을 지목했다. PARP 억제제 내성 극복을 위한 ATR 억제제 병용 전략이 전임상에서 유효성을 보였다.',
-    url: 'https://www.nature.com/articles/s41591-026-00123-5',
-    source_name: 'Nature Medicine',
-    published_at: '2026-03-07',
-    topic_group_id: 2,
-    week_label: '2026-W11',
-    is_featured: false,
+      'DeepMind이 CASP14에서 발표한 AlphaFold2는 단백질 구조 예측의 정확도를 실험적 방법에 근접한 수준으로 끌어올렸다. 100개 이상의 도메인 중 2/3에서 원자 정확도 수준의 예측을 달성했으며, GDT 점수 92.4를 기록했다. 구조 생물학과 신약 개발 패러다임을 바꾼 획기적인 성과다.',
+    url: 'https://www.nature.com/articles/s41586-021-03819-2',
+    source_name: 'Nature',
+    published_at: '2021-07-15',
+    topic_group_id: 3,
+    week_label: '2021-W28',
+    is_featured: true,
     is_bookmarked: false,
     notes: '',
+    url_status: 'unknown',
   },
   {
     id: 5,
-    title: 'CRISPR-Cas9 겸상적혈구병 치료제 Casgevy, 유럽 첫 환자 투여 성공',
+    title: 'A foundation model for generalizable disease detection from retinal images (RETFound)',
     summary:
-      'Vertex·CRISPR Therapeutics의 Casgevy(exa-cel)가 유럽에서 첫 환자에게 성공적으로 투여됐다. 12개월 추적에서 수혈 의존도 94% 감소, 혈관폐색 위기 사건 0건을 기록했다.',
-    url: 'https://www.nejm.org/doi/full/10.1056/NEJMe2600001',
-    source_name: 'NEJM',
-    published_at: '2026-03-06',
-    topic_group_id: 3,
-    week_label: '2026-W11',
-    is_featured: true,
-    is_bookmarked: false,
-    notes: '',
-  },
-  {
-    id: 6,
-    title: '차세대 CRISPR 염기편집으로 희귀 유전성 시각장애 교정 성공 — Stanford',
-    summary:
-      'Stanford 연구팀이 Prime Editing을 이용해 레버 선천성 흑내장(LCA) 원인 CEP290 변이를 망막 오가노이드에서 99% 효율로 교정했다. 오프타겟 편집은 전장 유전체 분석에서 통계적 유의 수준 이하.',
-    url: 'https://www.science.org/doi/10.1126/science.adx1234',
-    source_name: 'Science',
-    published_at: '2026-03-05',
-    topic_group_id: 3,
-    week_label: '2026-W11',
-    is_featured: false,
-    is_bookmarked: true,
-    notes: 'Stanford 연구 — 그룹장님 공유 요청',
-  },
-  {
-    id: 7,
-    title: 'AlphaFold3, 단백질-소분자 복합체 예측 정확도 PDB 기준 RMSD 0.8Å 달성',
-    summary:
-      'DeepMind AlphaFold3가 단백질-소분자 결합 구조 예측에서 결정학 분해능 수준인 RMSD 0.8Å를 달성했다는 벤치마크 결과가 공개됐다. 특히 키나아제 표적 신약 설계에 활용도가 높다는 평가.',
-    url: 'https://www.nature.com/articles/s41586-026-00234-7',
+      'UCL 연구팀이 개발한 안저 이미지 기반 파운데이션 모델 RETFound는 라벨 없는 157만 장 망막 이미지로 자기지도학습(SSL) 사전훈련 후 당뇨병성 망막병증·녹내장·AMD 등 다양한 안과 질환 탐지에서 기존 지도학습 모델을 능가했다. 의료 AI 파운데이션 모델의 실용화 가능성을 입증한 대표 연구다.',
+    url: 'https://www.nature.com/articles/s41586-023-06555-x',
     source_name: 'Nature',
-    published_at: '2026-03-04',
-    topic_group_id: 4,
-    week_label: '2026-W10',
+    published_at: '2023-08-28',
+    topic_group_id: 3,
+    week_label: '2023-W35',
     is_featured: false,
     is_bookmarked: false,
     notes: '',
-  },
-  {
-    id: 8,
-    title: 'AlphaFold3 + Molecular Dynamics 통합 파이프라인 오픈소스 공개',
-    summary:
-      'EMBL-EBI 팀이 AlphaFold3 구조 예측과 분자동역학(MD) 시뮬레이션을 자동으로 연결하는 오픈소스 파이프라인 AF3-MD를 GitHub에 공개했다. 단백질 안정성 평가 시간이 기존 대비 40% 단축.',
-    url: 'https://github.com/embl-ebi/af3-md',
-    source_name: 'GitHub/EMBL-EBI',
-    published_at: '2026-03-03',
-    topic_group_id: 4,
-    week_label: '2026-W10',
-    is_featured: false,
-    is_bookmarked: false,
-    notes: '',
-  },
-  {
-    id: 9,
-    title: 'Claude 3.7 Sonnet, 분자 설계 벤치마크 ADMET 예측 SOTA 달성',
-    summary:
-      'Anthropic의 Claude 3.7 Sonnet이 신약 후보 화합물의 흡수·분포·대사·배설·독성(ADMET) 예측 벤치마크에서 기존 전문 모델을 앞서는 성능을 보였다. 자연어 기반 분자 설계 지시에서도 유효성 증가.',
-    url: 'https://www.biorxiv.org/content/10.1101/2026.03.01.000001v1',
-    source_name: 'bioRxiv',
-    published_at: '2026-03-02',
-    topic_group_id: 5,
-    week_label: '2026-W10',
-    is_featured: false,
-    is_bookmarked: false,
-    notes: '',
-  },
-  {
-    id: 10,
-    title: 'GPT-5 기반 임상시험 프로토콜 자동 생성 시스템, FDA 파일럿 참여',
-    summary:
-      'OpenAI와 FDA가 GPT-5를 활용한 임상시험 프로토콜 초안 자동 생성 파일럿 프로그램을 시작했다. 규정 적합성 검토 시간이 평균 60% 단축됐으며 Phase 2 신청 부문에서 시범 적용 예정.',
-    url: 'https://www.statnews.com/2026/03/01/fda-gpt5-clinical-trial-protocol/',
-    source_name: 'STAT News',
-    published_at: '2026-03-01',
-    topic_group_id: 5,
-    week_label: '2026-W10',
-    is_featured: false,
-    is_bookmarked: false,
-    notes: '',
-  },
-  {
-    id: 11,
-    title: 'PD-1/PD-L1 이중 특이성 항체 IBI389, 위암 1차 치료 Phase 3 진입',
-    summary:
-      'Innovent Biologics의 PD-1·CTLA-4 이중 특이성 항체 IBI389가 위암 1차 치료 Phase 3 임상에 진입했다. 선행 Phase 1b/2에서 ORR 52%, mOS 14.3개월로 기존 단일 면역관문 억제제 대비 우월한 성적.',
-    url: 'https://clinicaltrials.gov/ct2/show/NCT0599XXXX',
-    source_name: 'ClinicalTrials.gov',
-    published_at: '2026-03-11',
-    topic_group_id: null,
-    week_label: '2026-W11',
-    is_featured: true,
-    is_bookmarked: false,
-    notes: '',
+    url_status: 'unknown',
   },
 ]
 
 export const seedNewsKeywords = [
-  // 뉴스 1 — 난소암, 항체치료, 임상시험
+  // 뉴스 1 (FDA ELAHERE) — 난소암, 항체치료, 임상시험
   { news_id: 1, keyword_id: 1 },
   { news_id: 1, keyword_id: 2 },
   { news_id: 1, keyword_id: 6 },
-  // 뉴스 2 — 난소암, 항체치료, 임상시험
+  // 뉴스 2 (MIRASOL NEJM) — 난소암, 항체치료, 임상시험
   { news_id: 2, keyword_id: 1 },
   { news_id: 2, keyword_id: 2 },
   { news_id: 2, keyword_id: 6 },
-  // 뉴스 3 — 난소암, 임상시험
+  // 뉴스 3 (OlympiAD NEJM) — 난소암, 임상시험
   { news_id: 3, keyword_id: 1 },
   { news_id: 3, keyword_id: 6 },
-  // 뉴스 4 — 난소암, AI신약
-  { news_id: 4, keyword_id: 1 },
+  // 뉴스 4 (AlphaFold Nature) — AI신약
   { news_id: 4, keyword_id: 3 },
-  // 뉴스 5 — CRISPR, 임상시험
-  { news_id: 5, keyword_id: 4 },
-  { news_id: 5, keyword_id: 6 },
-  // 뉴스 6 — CRISPR
-  { news_id: 6, keyword_id: 4 },
-  // 뉴스 7 — AI신약
-  { news_id: 7, keyword_id: 3 },
-  // 뉴스 8 — AI신약
-  { news_id: 8, keyword_id: 3 },
-  // 뉴스 9 — AI신약, LLM
-  { news_id: 9, keyword_id: 3 },
-  { news_id: 9, keyword_id: 5 },
-  // 뉴스 10 — LLM, 임상시험
-  { news_id: 10, keyword_id: 5 },
-  { news_id: 10, keyword_id: 6 },
-  // 뉴스 11 — 면역항암, 임상시험, 항체치료
-  { news_id: 11, keyword_id: 7 },
-  { news_id: 11, keyword_id: 6 },
-  { news_id: 11, keyword_id: 2 },
+  // 뉴스 5 (RETFound Nature) — AI신약, LLM
+  { news_id: 5, keyword_id: 3 },
+  { news_id: 5, keyword_id: 5 },
 ]
 
+// initDB는 항상 덮어씁니다 (데이터 교체 시 강제 리셋)
 export const initDB = () => {
-  if (!localStorage.getItem('news')) {
-    localStorage.setItem('news', JSON.stringify(seedNews))
-  }
-  if (!localStorage.getItem('keywords')) {
-    localStorage.setItem('keywords', JSON.stringify(seedKeywords))
-  }
-  if (!localStorage.getItem('newsKeywords')) {
-    localStorage.setItem('newsKeywords', JSON.stringify(seedNewsKeywords))
-  }
-  if (!localStorage.getItem('topicGroups')) {
-    localStorage.setItem('topicGroups', JSON.stringify(seedTopicGroups))
-  }
+  localStorage.setItem('news', JSON.stringify(seedNews))
+  localStorage.setItem('keywords', JSON.stringify(seedKeywords))
+  localStorage.setItem('newsKeywords', JSON.stringify(seedNewsKeywords))
+  localStorage.setItem('topicGroups', JSON.stringify(seedTopicGroups))
 }
