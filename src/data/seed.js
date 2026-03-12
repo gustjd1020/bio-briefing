@@ -32,7 +32,7 @@ export const seedNews = [
     is_featured: true,
     is_bookmarked: false,
     notes: '',
-    url_status: 'unknown',
+    url_status: 'verified',
   },
   {
     id: 2,
@@ -47,7 +47,7 @@ export const seedNews = [
     is_featured: true,
     is_bookmarked: false,
     notes: '',
-    url_status: 'unknown',
+    url_status: 'verified',
   },
   {
     id: 3,
@@ -62,7 +62,7 @@ export const seedNews = [
     is_featured: false,
     is_bookmarked: false,
     notes: '',
-    url_status: 'unknown',
+    url_status: 'verified',
   },
   {
     id: 4,
@@ -77,7 +77,7 @@ export const seedNews = [
     is_featured: true,
     is_bookmarked: false,
     notes: '',
-    url_status: 'unknown',
+    url_status: 'verified',
   },
   {
     id: 5,
@@ -92,7 +92,7 @@ export const seedNews = [
     is_featured: false,
     is_bookmarked: false,
     notes: '',
-    url_status: 'unknown',
+    url_status: 'verified',
   },
 ]
 

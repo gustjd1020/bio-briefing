@@ -802,49 +802,6 @@
   border-color: var(--accent-green);
 }
 
-.btn-url-validate {
-  background: rgba(59,130,246,.1);
-  color: #60a5fa;
-  border: 1px solid rgba(59,130,246,.3);
-  padding: 5px 12px;
-  border-radius: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  transition: all .12s;
-  white-space: nowrap;
-}
-
-.btn-url-validate:hover:not(:disabled) {
-  background: rgba(59,130,246,.2);
-  border-color: #60a5fa;
-}
-
-.btn-url-validate:disabled {
-  opacity: .7;
-  cursor: wait;
-}
-
-/* URL 상태 배지 */
-.url-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-.url-ok    { background: rgba(16,185,129,.12); color: #10b981; }
-.url-error { background: rgba(239,68,68,.12);  color: #f87171; }
-.url-unknown { background: rgba(234,179,8,.12); color: #fbbf24; }
-
-/* NewsCard 메타에서 url-status 배지는 아이콘만 */
-.news-card-meta .url-status-badge {
-  padding: 0;
-  background: transparent;
-  font-size: 13px;
-}
 
 .btn-export-all {
   background: rgba(139,92,246,.1);
@@ -1054,31 +1011,333 @@
   color: var(--accent-green) !important;
 }
 
-.collect-log {
-  background: #060b10;
+/* ── CollectModal v2 (URL 검증 기반 3단계) ── */
+
+.collect-modal-v2 {
+  width: 560px;
+}
+
+/* 스텝 인디케이터 */
+.collect-steps {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  gap: 0;
+}
+
+.collect-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.collect-step-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 2px solid var(--border2);
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+}
+
+.collect-step-item.active .collect-step-circle {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.collect-step-item.done .collect-step-circle {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #fff;
+}
+
+.collect-step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+.collect-step-item.active .collect-step-label,
+.collect-step-item.done .collect-step-label {
+  color: var(--text);
+}
+
+.collect-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin: 0 10px;
+  transition: background .2s;
+}
+
+.collect-step-line.done {
+  background: var(--accent-green);
+}
+
+/* 공지 박스 */
+.collect-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(234,179,8,.08);
+  border: 1px solid rgba(234,179,8,.25);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+.collect-notice-icon { font-size: 15px; flex-shrink: 0; }
+
+/* URL 입력 행 */
+.url-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.url-input-row .modal-input {
+  flex: 1;
+}
+
+.btn-open-url {
+  background: rgba(59,130,246,.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,.3);
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all .12s;
+  flex-shrink: 0;
+}
+
+.btn-open-url:hover:not(:disabled) {
+  background: rgba(59,130,246,.22);
+  border-color: #60a5fa;
+}
+
+.btn-open-url:disabled { opacity: .4; }
+
+.url-hint {
+  font-size: 11px;
+  color: var(--accent-yellow);
+  margin-top: 5px;
+  padding-left: 2px;
+}
+
+/* Step2 URL 표시 */
+.collect-url-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 14px;
-  max-height: 160px;
-  overflow-y: auto;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.collect-url-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  flex-shrink: 0;
+}
+
+.collect-url-link {
+  color: var(--accent2);
+  text-decoration: none;
+  word-break: break-all;
   font-family: var(--font-mono);
   font-size: 11px;
 }
 
-.log-line {
-  padding: 2px 0;
-  line-height: 1.4;
+.collect-url-link:hover { text-decoration: underline; }
+
+/* 접속 확인 체크박스 */
+.collect-confirm-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: rgba(16,185,129,.07);
+  border: 1px solid rgba(16,185,129,.2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
 }
 
-.log-ts {
+.collect-confirm-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-green);
+  flex-shrink: 0;
+}
+
+/* 폼 잠금 상태 */
+.collect-form.form-locked {
+  opacity: .45;
+  pointer-events: none;
+}
+
+/* 폼 공통 인풋 */
+.modal-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text3);
-  margin-right: 6px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
 }
 
-.log-info { color: #7dd3fc; }
-.log-success { color: var(--accent-green); }
-.log-done { color: var(--accent-yellow); font-weight: 700; }
-.log-divider { color: var(--text3); }
+.label-required { color: #f87171; margin-left: 2px; }
+
+.label-charcount {
+  float: right;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text3);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.modal-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  transition: border-color .12s;
+  box-sizing: border-box;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.modal-input:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.modal-textarea {
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.5;
+}
+
+.modal-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+/* 2컬럼 행 */
+.collect-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* 주요 뉴스 토글 */
+.collect-featured-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.collect-featured-toggle input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent-yellow);
+}
+
+/* 저장 완료 화면 */
+.collect-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.collect-success-icon { font-size: 48px; }
+
+.collect-success-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent-green);
+  font-family: var(--font-serif);
+}
+
+.collect-success-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.collect-success-desc {
+  font-size: 12px;
+  color: var(--text3);
+  max-width: 400px;
+  word-break: break-word;
+  font-style: italic;
+}
+
+/* URL 상태 배지 */
+.url-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.url-verified { background: rgba(16,185,129,.12); color: #10b981; }
+.url-error    { background: rgba(239,68,68,.12);   color: #f87171; }
+.url-unknown  { background: rgba(234,179,8,.12);   color: #fbbf24; }
+
+/* NewsCard 메타에서는 아이콘만 */
+.news-card-meta .url-status-badge {
+  padding: 0;
+  background: transparent;
+  font-size: 13px;
+}
+
+/* btn-url-validate는 제거됨 (CORS 기반 자동 검증 폐지) */
 
 .modal-footer {
   display: flex;
@@ -1185,8 +1444,29 @@
   color: #2d3748;
 }
 
-[data-theme="light"] .collect-log {
-  background: #f0f4f8;
+[data-theme="light"] .collect-notice {
+  background: rgba(234,179,8,.07);
+  border-color: rgba(234,179,8,.3);
+}
+
+[data-theme="light"] .collect-confirm-check {
+  background: rgba(16,185,129,.06);
+  border-color: rgba(16,185,129,.25);
+}
+
+[data-theme="light"] .modal-input {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+[data-theme="light"] .modal-input:focus {
+  border-color: #3b82f6;
+}
+
+[data-theme="light"] .collect-url-display {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 [data-theme="light"] .log-info { color: #1d4ed8; }

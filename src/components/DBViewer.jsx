@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   getNews, getKeywords, getNewsKeywords, getTopicGroups,
-  downloadCSV, downloadAllAsZip, validateAllNewsUrls,
+  downloadCSV, downloadAllAsZip,
 } from '../data/db'
 
 const SUBTABS = [
@@ -11,16 +11,18 @@ const SUBTABS = [
   { id: 'topicGroup', label: 'TopicGroup', icon: '🗂️' },
 ]
 
+// url_status 표시 기준:
+// verified → ✅ 확인됨 (사용자가 직접 접속 확인)
+// unknown  → ⚠️ 미확인
+// error    → ❌ 오류 (접속 불가 확인)
 const URL_STATUS_BADGE = {
-  ok:      { icon: '✅', label: 'OK',      className: 'url-ok' },
-  error:   { icon: '❌', label: 'Error',   className: 'url-error' },
-  unknown: { icon: '⚠️', label: 'Unknown', className: 'url-unknown' },
+  verified: { icon: '✅', label: '확인됨',  className: 'url-verified' },
+  unknown:  { icon: '⚠️', label: '미확인',  className: 'url-unknown' },
+  error:    { icon: '❌', label: '오류',    className: 'url-error' },
 }
 
-function TableView({ data, tableName, weekLabel, onValidated }) {
+function TableView({ data, tableName, weekLabel }) {
   const [showJson, setShowJson] = useState(false)
-  const [validating, setValidating] = useState(false)
-  const [progress, setProgress] = useState({ done: 0, total: 0 })
 
   const columns = useMemo(() => {
     if (!data || data.length === 0) return []
@@ -31,32 +33,11 @@ function TableView({ data, tableName, weekLabel, onValidated }) {
     ? `news_${weekLabel || 'all'}.csv`
     : `${tableName}.csv`
 
-  const handleValidate = useCallback(async () => {
-    setValidating(true)
-    setProgress({ done: 0, total: 0 })
-    await validateAllNewsUrls((done, total) => {
-      setProgress({ done, total })
-    })
-    setValidating(false)
-    onValidated && onValidated()
-  }, [onValidated])
-
   return (
     <div className="db-table-wrap">
       <div className="db-table-topbar">
         <span className="db-row-count">총 {data.length}건</span>
         <div className="db-table-actions">
-          {tableName === 'news' && (
-            <button
-              className="btn-url-validate"
-              onClick={handleValidate}
-              disabled={validating}
-            >
-              {validating
-                ? `🔍 검증 중… (${progress.done}/${progress.total})`
-                : '🔍 URL 전체 검증'}
-            </button>
-          )}
           <button
             className="btn-json-toggle"
             onClick={() => setShowJson((v) => !v)}
@@ -140,7 +121,6 @@ function formatCell(val, col) {
 
 export default function DBViewer({ refreshTrigger }) {
   const [activeTab, setActiveTab] = useState('news')
-  const [localRefresh, setLocalRefresh] = useState(0)
 
   const getData = () => {
     switch (activeTab) {
@@ -152,13 +132,13 @@ export default function DBViewer({ refreshTrigger }) {
     }
   }
 
-  const data = useMemo(getData, [activeTab, refreshTrigger, localRefresh])
+  const data = useMemo(getData, [activeTab, refreshTrigger])
 
   const currentWeek = useMemo(() => {
     const news = getNews()
     const weeks = [...new Set(news.map((n) => n.week_label))].filter(Boolean)
     return weeks.sort().reverse()[0] || 'all'
-  }, [refreshTrigger, localRefresh])
+  }, [refreshTrigger])
 
   return (
     <div className="tab-content db-viewer">
@@ -185,7 +165,6 @@ export default function DBViewer({ refreshTrigger }) {
         data={data}
         tableName={activeTab}
         weekLabel={currentWeek}
-        onValidated={() => setLocalRefresh((v) => v + 1)}
       />
     </div>
   )

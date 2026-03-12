@@ -32,14 +32,14 @@ export default function NewsCard({ news, keywords, onUpdate, compact = false }) 
           <span className="news-source">{news.source_name}</span>
           <span className="news-date">{news.published_at}</span>
           <span className="news-week">{news.week_label}</span>
-          {news.url_status === 'ok' && (
-            <span className="url-status-badge url-ok" title="URL 정상">✅</span>
+          {news.url_status === 'verified' && (
+            <span className="url-status-badge url-verified" title="URL 직접 확인됨">✅</span>
           )}
           {news.url_status === 'error' && (
-            <span className="url-status-badge url-error" title="URL 접근 불가">❌</span>
+            <span className="url-status-badge url-error" title="URL 접속 불가">❌</span>
           )}
           {(!news.url_status || news.url_status === 'unknown') && (
-            <span className="url-status-badge url-unknown" title="URL 미검증">⚠️</span>
+            <span className="url-status-badge url-unknown" title="URL 미확인">⚠️</span>
           )}
         </div>
         <button

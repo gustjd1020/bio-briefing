@@ -1,15 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { getKeywords, addNews, getNewsKeywords, setNewsKeywords } from '../data/db'
-
-const SOURCES = [
-  { id: 'nature', name: 'Nature' },
-  { id: 'pubmed', name: 'PubMed' },
-  { id: 'nejm', name: 'NEJM' },
-  { id: 'lancet', name: 'Lancet' },
-  { id: 'dong-a', name: '동아사이언스' },
-  { id: 'biorxiv', name: 'bioRxiv' },
-  { id: 'stat', name: 'STAT News' },
-]
+import { getKeywords, getTopicGroups, addNews, getNewsKeywords, setNewsKeywords } from '../data/db'
 
 function getCurrentWeekLabel() {
   const now = new Date()
@@ -18,200 +8,346 @@ function getCurrentWeekLabel() {
   return `${now.getFullYear()}-W${String(week).padStart(2, '0')}`
 }
 
+const STEP_LABELS = ['URL 입력', '정보 입력', '저장 완료']
+
 export default function CollectModal({ onClose, onCollected }) {
   const keywords = getKeywords()
-  const [selKw, setSelKw] = useState([])
-  const [selSrc, setSelSrc] = useState([])
-  const [period, setPeriod] = useState('7')
-  const [logs, setLogs] = useState([])
-  const [running, setRunning] = useState(false)
-  const [done, setDone] = useState(false)
-  const logRef = useRef(null)
+  const topicGroups = getTopicGroups()
 
-  const addLog = (msg, type = 'info') => {
-    setLogs((prev) => {
-      const next = [...prev, { msg, type, ts: new Date().toLocaleTimeString() }]
-      setTimeout(() => {
-        if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-      }, 50)
-      return next
-    })
+  const [step, setStep] = useState(1)
+
+  // Step 1
+  const [url, setUrl] = useState('')
+  const urlInputRef = useRef(null)
+
+  // Step 2
+  const [confirmed, setConfirmed] = useState(false)
+  const [title, setTitle] = useState('')
+  const [summary, setSummary] = useState('')
+  const [sourceName, setSourceName] = useState('')
+  const [publishedAt, setPublishedAt] = useState(
+    () => new Date().toISOString().split('T')[0]
+  )
+  const [selKw, setSelKw] = useState([])
+  const [isFeatured, setIsFeatured] = useState(false)
+  const [topicGroupId, setTopicGroupId] = useState('')
+
+  // ── Step 1 핸들러 ──────────────────────────
+  const handleOpenUrl = () => {
+    if (!url.trim()) return
+    window.open(url.trim(), '_blank', 'noopener,noreferrer')
   }
 
+  const handleStep1Next = () => {
+    if (!url.trim()) return
+    setStep(2)
+  }
+
+  // ── Step 2 핸들러 ──────────────────────────
   const toggleKw = (id) =>
     setSelKw((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
 
-  const toggleSrc = (id) =>
-    setSelSrc((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
+  const canSave = confirmed && title.trim() && sourceName.trim() && publishedAt
 
-  const handleCollect = async () => {
-    if (selKw.length === 0 || selSrc.length === 0) {
-      alert('키워드와 출처를 하나 이상 선택해주세요.')
-      return
-    }
-    setRunning(true)
-    setLogs([])
+  const handleSave = () => {
+    if (!canSave) return
 
-    addLog('⚡ 뉴스 수집 시작...', 'info')
-    await sleep(400)
-
-    for (const srcId of selSrc) {
-      const src = SOURCES.find((s) => s.id === srcId)
-      addLog(`🔍 ${src.name} 연결 중...`, 'info')
-      await sleep(300 + Math.random() * 200)
-      addLog(`✅ ${src.name} 연결 성공`, 'success')
-      await sleep(200)
-
-      for (const kwId of selKw) {
-        const kw = keywords.find((k) => k.id === kwId)
-        addLog(`   📡 "${kw.name}" 검색 중 (${src.name})...`, 'info')
-        await sleep(400 + Math.random() * 300)
-
-        const count = Math.floor(Math.random() * 3) + 1
-        addLog(`   📰 ${count}건 발견`, 'success')
-
-        for (let i = 0; i < count; i++) {
-          const newItem = generateDummyNews(src.name, kw.name)
-          const added = addNews(newItem)
-          const nkList = getNewsKeywords()
-          setNewsKeywords([...nkList, { news_id: added.id, keyword_id: kwId }])
-          await sleep(100)
-        }
-      }
+    const newItem = {
+      title: title.trim(),
+      summary: summary.trim(),
+      url: url.trim(),
+      source_name: sourceName.trim(),
+      published_at: publishedAt,
+      topic_group_id: topicGroupId ? parseInt(topicGroupId) : null,
+      week_label: getCurrentWeekLabel(),
+      is_featured: isFeatured,
+      is_bookmarked: false,
+      notes: '',
+      url_status: 'verified',
     }
 
-    await sleep(300)
-    addLog('', '')
-    addLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'divider')
-    addLog('✨ 수집 완료! 새로운 기사가 추가됐습니다.', 'done')
-    setRunning(false)
-    setDone(true)
+    const added = addNews(newItem)
+
+    if (selKw.length > 0) {
+      const nkList = getNewsKeywords()
+      setNewsKeywords([
+        ...nkList,
+        ...selKw.map((kwId) => ({ news_id: added.id, keyword_id: kwId })),
+      ])
+    }
+
+    setStep(3)
     onCollected && onCollected()
   }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal collect-modal-v2" onClick={(e) => e.stopPropagation()}>
+
+        {/* 헤더 */}
         <div className="modal-header">
-          <h2>⚡ 뉴스 수집</h2>
+          <h2>📰 뉴스 추가</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 
-        <div className="modal-body">
-          {/* 키워드 선택 */}
-          <div className="modal-section">
-            <div className="modal-section-title">🏷️ 키워드 선택</div>
-            <div className="modal-chips">
-              {keywords.map((kw) => (
-                <button
-                  key={kw.id}
-                  className={`chip${selKw.includes(kw.id) ? ' selected' : ''}`}
-                  style={selKw.includes(kw.id) ? { background: kw.color, borderColor: kw.color, color: '#fff' } : { borderColor: kw.color, color: kw.color }}
-                  onClick={() => toggleKw(kw.id)}
+        {/* 스텝 인디케이터 */}
+        <div className="collect-steps">
+          {STEP_LABELS.map((label, i) => {
+            const s = i + 1
+            return (
+              <React.Fragment key={s}>
+                <div
+                  className={`collect-step-item${step >= s ? ' active' : ''}${step > s ? ' done' : ''}`}
                 >
-                  {kw.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 출처 선택 */}
-          <div className="modal-section">
-            <div className="modal-section-title">📡 출처 선택</div>
-            <div className="modal-chips">
-              {SOURCES.map((src) => (
-                <button
-                  key={src.id}
-                  className={`chip${selSrc.includes(src.id) ? ' selected chip-blue' : ''}`}
-                  onClick={() => toggleSrc(src.id)}
-                >
-                  {src.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 기간 선택 */}
-          <div className="modal-section">
-            <div className="modal-section-title">📅 수집 기간</div>
-            <div className="modal-chips">
-              {['1', '3', '7', '14', '30'].map((d) => (
-                <button
-                  key={d}
-                  className={`chip${period === d ? ' selected chip-green' : ''}`}
-                  onClick={() => setPeriod(d)}
-                >
-                  최근 {d}일
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 로그 영역 */}
-          {logs.length > 0 && (
-            <div className="collect-log" ref={logRef}>
-              {logs.map((l, i) => (
-                <div key={i} className={`log-line log-${l.type}`}>
-                  {l.ts && <span className="log-ts">[{l.ts}]</span>}
-                  {' '}{l.msg}
+                  <div className="collect-step-circle">
+                    {step > s ? '✓' : s}
+                  </div>
+                  <div className="collect-step-label">{label}</div>
                 </div>
-              ))}
-            </div>
-          )}
+                {i < 2 && <div className={`collect-step-line${step > s ? ' done' : ''}`} />}
+              </React.Fragment>
+            )
+          })}
         </div>
 
+        {/* 바디 */}
+        <div className="modal-body">
+
+          {/* ── STEP 1: URL 입력 ── */}
+          {step === 1 && (
+            <div className="collect-step-content">
+              <div className="collect-notice">
+                <span className="collect-notice-icon">🔒</span>
+                <span>
+                  AI가 내용을 자동 생성하지 않습니다.<br />
+                  반드시 실제 URL에 직접 접속해 확인한 내용만 입력해주세요.
+                </span>
+              </div>
+
+              <div className="modal-section">
+                <label className="modal-label">뉴스 URL</label>
+                <div className="url-input-row">
+                  <input
+                    ref={urlInputRef}
+                    className="modal-input"
+                    type="url"
+                    placeholder="https://www.nejm.org/doi/..."
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleStep1Next()}
+                    autoFocus
+                  />
+                  <button
+                    className="btn-open-url"
+                    onClick={handleOpenUrl}
+                    disabled={!url.trim()}
+                    title="새 탭에서 열기"
+                  >
+                    🔗 열기
+                  </button>
+                </div>
+                {url.trim() && (
+                  <div className="url-hint">
+                    ↑ "열기" 버튼으로 URL이 실제로 접속되는지 먼저 확인하세요
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 2: 정보 직접 입력 ── */}
+          {step === 2 && (
+            <div className="collect-step-content">
+
+              {/* URL 표시 */}
+              <div className="collect-url-display">
+                <span className="collect-url-label">URL</span>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="collect-url-link"
+                >
+                  {url.length > 65 ? url.slice(0, 65) + '…' : url}
+                </a>
+              </div>
+
+              {/* 접속 확인 체크박스 */}
+              <label className="collect-confirm-check">
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  onChange={(e) => setConfirmed(e.target.checked)}
+                />
+                <span>위 URL에 직접 접속해서 내용을 확인했습니다</span>
+              </label>
+
+              {/* 입력 폼 (체크 전엔 비활성) */}
+              <div className={`collect-form${!confirmed ? ' form-locked' : ''}`}>
+
+                <div className="modal-section">
+                  <label className="modal-label">
+                    제목 <span className="label-required">*</span>
+                  </label>
+                  <input
+                    className="modal-input"
+                    type="text"
+                    placeholder="논문/기사 제목을 원문 그대로 입력"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    disabled={!confirmed}
+                  />
+                </div>
+
+                <div className="modal-section">
+                  <label className="modal-label">
+                    요약
+                    <span className="label-charcount">
+                      {summary.length} / 200자
+                    </span>
+                  </label>
+                  <textarea
+                    className="modal-input modal-textarea"
+                    placeholder="핵심 내용을 직접 요약해주세요 (200자 이내)"
+                    value={summary}
+                    onChange={(e) => setSummary(e.target.value.slice(0, 200))}
+                    rows={3}
+                    disabled={!confirmed}
+                  />
+                </div>
+
+                <div className="collect-row-2">
+                  <div className="modal-section">
+                    <label className="modal-label">
+                      출처명 <span className="label-required">*</span>
+                    </label>
+                    <input
+                      className="modal-input"
+                      type="text"
+                      placeholder="NEJM, Nature, FDA…"
+                      value={sourceName}
+                      onChange={(e) => setSourceName(e.target.value)}
+                      disabled={!confirmed}
+                    />
+                  </div>
+                  <div className="modal-section">
+                    <label className="modal-label">
+                      발행일 <span className="label-required">*</span>
+                    </label>
+                    <input
+                      className="modal-input"
+                      type="date"
+                      value={publishedAt}
+                      onChange={(e) => setPublishedAt(e.target.value)}
+                      disabled={!confirmed}
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-section">
+                  <label className="modal-label">키워드</label>
+                  <div className="modal-chips">
+                    {keywords.map((kw) => (
+                      <button
+                        key={kw.id}
+                        type="button"
+                        className={`chip${selKw.includes(kw.id) ? ' selected' : ''}`}
+                        style={
+                          selKw.includes(kw.id)
+                            ? { background: kw.color, borderColor: kw.color, color: '#fff' }
+                            : { borderColor: kw.color, color: kw.color }
+                        }
+                        onClick={() => toggleKw(kw.id)}
+                        disabled={!confirmed}
+                      >
+                        {kw.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {topicGroups.length > 0 && (
+                  <div className="modal-section">
+                    <label className="modal-label">토픽 그룹 (선택)</label>
+                    <select
+                      className="modal-input modal-select"
+                      value={topicGroupId}
+                      onChange={(e) => setTopicGroupId(e.target.value)}
+                      disabled={!confirmed}
+                    >
+                      <option value="">— 미지정 —</option>
+                      {topicGroups.map((tg) => (
+                        <option key={tg.id} value={tg.id}>
+                          {tg.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="modal-section">
+                  <label className="collect-featured-toggle">
+                    <input
+                      type="checkbox"
+                      checked={isFeatured}
+                      onChange={(e) => setIsFeatured(e.target.checked)}
+                      disabled={!confirmed}
+                    />
+                    <span>✦ 주간 브리핑 주요 뉴스로 선정</span>
+                  </label>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 3: 저장 완료 ── */}
+          {step === 3 && (
+            <div className="collect-success">
+              <div className="collect-success-icon">✅</div>
+              <div className="collect-success-title">검증된 뉴스가 저장됐습니다</div>
+              <div className="collect-success-meta">
+                <span className="url-status-badge url-verified">✅ 확인됨</span>
+                <span>상태로 DB에 저장됐습니다</span>
+              </div>
+              <div className="collect-success-desc">"{title}"</div>
+            </div>
+          )}
+
+        </div>
+
+        {/* 푸터 */}
         <div className="modal-footer">
-          {done ? (
-            <button className="btn-primary" onClick={onClose}>닫기</button>
-          ) : (
+          {step === 1 && (
             <>
-              <button className="btn-secondary" onClick={onClose} disabled={running}>취소</button>
-              <button className="btn-primary" onClick={handleCollect} disabled={running}>
-                {running ? '수집 중...' : '수집 시작'}
+              <button className="btn-secondary" onClick={onClose}>취소</button>
+              <button
+                className="btn-primary"
+                onClick={handleStep1Next}
+                disabled={!url.trim()}
+              >
+                다음 →
               </button>
             </>
           )}
+          {step === 2 && (
+            <>
+              <button className="btn-secondary" onClick={() => setStep(1)}>← 이전</button>
+              <button
+                className="btn-primary"
+                onClick={handleSave}
+                disabled={!canSave}
+              >
+                DB에 저장
+              </button>
+            </>
+          )}
+          {step === 3 && (
+            <button className="btn-primary" onClick={onClose}>닫기</button>
+          )}
         </div>
+
       </div>
     </div>
   )
-}
-
-// ── 헬퍼 ────────────────────────────────────
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms))
-}
-
-const FAKE_TITLES = [
-  'Phase 3 임상시험에서 유의미한 PFS 개선 확인',
-  '신규 바이오마커 발굴로 치료 반응 예측 가능성 제시',
-  '단일세포 RNA 시퀀싱으로 내성 기전 규명',
-  '오가노이드 모델에서 약물 유효성 검증',
-  '실세계데이터(RWD) 분석으로 효능 재확인',
-  '멀티오믹스 통합 분석으로 새로운 치료 표적 발굴',
-  '환자 유래 이종이식(PDX) 모델에서 상승효과 확인',
-]
-
-function generateDummyNews(source, keyword) {
-  const title = `[${keyword}] ${FAKE_TITLES[Math.floor(Math.random() * FAKE_TITLES.length)]}`
-  const now = new Date()
-  const date = new Date(now - Math.random() * 7 * 86400000)
-  const dateStr = date.toISOString().split('T')[0]
-  const year = date.getFullYear()
-  const start = new Date(year, 0, 1)
-  const week = Math.ceil(((date - start) / 86400000 + start.getDay() + 1) / 7)
-  const weekLabel = `${year}-W${String(week).padStart(2, '0')}`
-
-  return {
-    title,
-    summary: `${source}에서 수집된 ${keyword} 관련 최신 연구 결과입니다. 자세한 내용은 원문을 참조하세요.`,
-    url: '#',
-    source_name: source,
-    published_at: dateStr,
-    topic_group_id: null,
-    week_label: weekLabel,
-    is_featured: false,
-    is_bookmarked: false,
-    notes: '',
-  }
 }
