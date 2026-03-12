@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 220" fill="none">
+  <!-- abl: dark charcoal -->
+  <text x="0" y="168"
+        font-family="'Arial Black','Arial',sans-serif"
+        font-size="155" font-weight="900"
+        fill="#4a4949" letter-spacing="-4">abl</text>
+
+  <!-- orange vertical bar -->
+  <rect x="306" y="22" width="19" height="152" rx="2" fill="#E8A428"/>
+
+  <!-- orange circle dot (above bar, like an i-dot) -->
+  <circle cx="315" cy="10" r="15" fill="#E8A428"/>
+
+  <!-- bio: orange -->
+  <text x="332" y="168"
+        font-family="'Arial Black','Arial',sans-serif"
+        font-size="155" font-weight="900"
+        fill="#E8A428" letter-spacing="-4">bio</text>
+
+  <!-- tagline: medicine for a better life -->
+  <!-- "medicine for " black -->
+  <text x="78" y="205"
+        font-family="Arial,sans-serif"
+        font-size="32" fill="#222222" letter-spacing="0.3">medicine for </text>
+  <!-- "a" red -->
+  <text x="339" y="205"
+        font-family="Arial,sans-serif"
+        font-size="32" fill="#cc1111" letter-spacing="0.3">a</text>
+  <!-- " better l" black -->
+  <text x="358" y="205"
+        font-family="Arial,sans-serif"
+        font-size="32" fill="#222222" letter-spacing="0.3"> better l</text>
+  <!-- "i" red -->
+  <text x="536" y="205"
+        font-family="Arial,sans-serif"
+        font-size="32" fill="#cc1111" letter-spacing="0.3">i</text>
+  <!-- "fe" black -->
+  <text x="549" y="205"
+        font-family="Arial,sans-serif"
+        font-size="32" fill="#222222" letter-spacing="0.3">fe</text>
+</svg>

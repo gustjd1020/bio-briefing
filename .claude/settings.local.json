@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "WebFetch(domain:www.ablbio.com)",
+      "Bash(curl -L -o \"C:/Users/hyunseong.youn_ablbi/Desktop/AI/bio-briefing/public/ablbio-logo.png\" \"https://www.ablbio.com/application/views/kr/company/ablbio_01/img/logo.png\" -A \"Mozilla/5.0\")",
+      "Bash(curl -L -o \"C:/Users/hyunseong.youn_ablbi/Desktop/AI/bio-briefing/public/ablbio-logo-white.png\" \"https://www.ablbio.com/application/views/kr/company/ablbio_01/img/logo_gray.png\" -A \"Mozilla/5.0\")",
+      "Bash(gh --version)",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
+      "Bash(gh auth:*)"
+    ]
+  }
+}
