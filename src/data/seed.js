@@ -21,9 +21,11 @@ export const seedKeywords = [
   { id: 10, name: '폐암',           priority: 10, color: '#ff5722' },
   { id: 11, name: '대장암',         priority: 11, color: '#795548' },
   { id: 12, name: '공모주',         priority: 12, color: '#607d8b' },
-  { id: 13, name: 'T cell engager', priority: 13, color: '#ff9800' },
-  { id: 14, name: 'CD3',            priority: 14, color: '#673ab7' },
-  { id: 15, name: '4-1BB',          priority: 15, color: '#009688' },
+  { id: 13, name: 'T cell engager',          priority: 13, color: '#ff9800' },
+  { id: 14, name: 'CD3',                     priority: 14, color: '#673ab7' },
+  { id: 15, name: '4-1BB',                   priority: 15, color: '#009688' },
+  { id: 16, name: 'ADC',                     priority: 16, color: '#c0392b' },
+  { id: 17, name: 'Antibody drug conjugates', priority: 17, color: '#8e44ad' },
 ]
 
 export const seedNews = [
@@ -105,16 +107,20 @@ export const seedNews = [
 ]
 
 export const seedNewsKeywords = [
-  // 뉴스 1 (FDA ELAHERE) — 난소암, 항체치료, 임상시험, FOLR1
+  // 뉴스 1 (FDA ELAHERE) — 난소암, 항체치료, 임상시험, FOLR1, ADC, Antibody drug conjugates
   { news_id: 1, keyword_id: 1 },
   { news_id: 1, keyword_id: 2 },
   { news_id: 1, keyword_id: 6 },
   { news_id: 1, keyword_id: 8 },
-  // 뉴스 2 (MIRASOL NEJM) — 난소암, 항체치료, 임상시험, FOLR1
+  { news_id: 1, keyword_id: 16 },
+  { news_id: 1, keyword_id: 17 },
+  // 뉴스 2 (MIRASOL NEJM) — 난소암, 항체치료, 임상시험, FOLR1, ADC, Antibody drug conjugates
   { news_id: 2, keyword_id: 1 },
   { news_id: 2, keyword_id: 2 },
   { news_id: 2, keyword_id: 6 },
   { news_id: 2, keyword_id: 8 },
+  { news_id: 2, keyword_id: 16 },
+  { news_id: 2, keyword_id: 17 },
   // 뉴스 3 (OlympiAD NEJM) — 난소암, 임상시험
   { news_id: 3, keyword_id: 1 },
   { news_id: 3, keyword_id: 6 },
