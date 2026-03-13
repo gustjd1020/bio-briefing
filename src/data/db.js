@@ -37,7 +37,10 @@ export const updateNews = (id, patch) => {
 
 export const addNews = (item) => {
   const list = getNews()
-  const nextId = list.length ? Math.max(...list.map((n) => n.id)) + 1 : 1
+  // item.id가 이미 지정된 경우 그대로 사용 (Google Sheets 연동 시 외부에서 id 할당)
+  const nextId = item.id != null
+    ? item.id
+    : (list.length ? Math.max(...list.map((n) => n.id)) + 1 : 1)
   const newItem = { ...item, id: nextId }
   setNews([...list, newItem])
   return newItem

@@ -1,5 +1,13 @@
 import React, { useState } from 'react'
-import { getKeywords, getTopicGroups, addNews, getNewsKeywords, setNewsKeywords } from '../data/db'
+import { getKeywords, addNews, getNews, getNewsKeywords, setNewsKeywords } from '../data/db'
+import {
+  getSheetRows,
+  appendRows,
+  newsToRow,
+  newsKwToRow,
+  NEWS_COLUMNS,
+  NEWS_KW_COLUMNS,
+} from '../data/sheets'
 
 // ── 출처 목록 ────────────────────────────────
 const SOURCES = [
@@ -124,6 +132,9 @@ export default function CollectModal({ onClose, onCollected }) {
 
   // Step 4
   const [savedCount, setSavedCount] = useState(0)
+  const [skippedCount, setSkippedCount] = useState(0)
+  const [sheetsError, setSheetsError] = useState(null)
+  const [saving, setSaving] = useState(false)
 
   const toggleKw = (id) =>
     setSelKw((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
@@ -158,15 +169,74 @@ export default function CollectModal({ onClose, onCollected }) {
   }
 
   // ── Step 3 → 4: 선택 항목 저장 ────────────
-  const handleSave = () => {
+  const handleSave = async () => {
     const toSave = results.filter((_, i) => checkedIds.includes(i))
+    if (toSave.length === 0) return
+
+    setSaving(true)
+    setSheetsError(null)
+
+    // ── 1. Google Sheets에서 기존 URL / 제목 Set + 최대 id 조회 ──
+    let existingUrls = new Set()
+    let existingTitles = new Set()
+    let sheetsMaxId = 0
+    let sheetsAvailable = false
+    let newsSheetEmpty = false
+    let nkSheetEmpty = false
+
+    try {
+      const rows = await getSheetRows('News')
+      newsSheetEmpty = rows.length === 0
+      rows.forEach((r) => {
+        if (r.url && r.url !== '#') existingUrls.add(r.url)
+        if (r.title) existingTitles.add(r.title)
+      })
+      const ids = rows.map((r) => parseInt(r.id, 10)).filter((n) => !isNaN(n))
+      sheetsMaxId = ids.length ? Math.max(...ids) : 0
+      sheetsAvailable = true
+    } catch {
+      // Google Sheets 연결 불가 → localStorage에만 저장 (정상 degradation)
+      sheetsAvailable = false
+    }
+
+    if (sheetsAvailable) {
+      try {
+        const nkRows = await getSheetRows('NewsKeywords')
+        nkSheetEmpty = nkRows.length === 0
+      } catch {
+        nkSheetEmpty = true
+      }
+    }
+
+    // ── 2. 중복 필터링 ────────────────────────────────────────────
+    const filtered = sheetsAvailable
+      ? toSave.filter((item) => {
+          const url = item.url && item.url !== '#' ? item.url : null
+          if (url) return !existingUrls.has(url)          // URL 기준
+          return !existingTitles.has(item.title)           // URL 없으면 제목 기준
+        })
+      : toSave   // Sheets 연결 불가 시 전부 저장
+
+    const skipped = toSave.length - filtered.length
+
+    // ── 3. id 결정: Sheets max id ∪ localStorage max id 중 큰 값 + 1 ──
+    const localMaxId = (() => {
+      const list = getNews()
+      return list.length ? Math.max(...list.map((n) => n.id)) : 0
+    })()
+    let nextId = Math.max(sheetsMaxId, localMaxId)
+
+    // ── 4. 저장 (localStorage + Google Sheets) ───────────────────
     const weekLabel = getCurrentWeekLabel()
     const newNkEntries = []
+    const sheetsNewsRows = []
+    const sheetsNkRows = []
 
-    for (const item of toSave) {
+    for (const item of filtered) {
+      nextId += 1
       const urlStatus = item.url_confidence === 'high' ? 'verified' : 'unverified'
-
-      const added = addNews({
+      const newsObj = {
+        id: nextId,
         title: item.title || '(제목 없음)',
         summary: item.summary || '',
         url: item.url || '#',
@@ -178,28 +248,54 @@ export default function CollectModal({ onClose, onCollected }) {
         is_bookmarked: false,
         notes: '',
         url_status: urlStatus,
-      })
+      }
 
-      // 키워드 매핑 (이름 기반 매칭, 대소문자 무시)
+      // localStorage 저장 (id 지정)
+      addNews(newsObj)
+
+      // Google Sheets 행 준비
+      if (sheetsAvailable) sheetsNewsRows.push(newsToRow(newsObj))
+
+      // 키워드 매핑 (이름 기반, 대소문자 무시)
       const kwIds = (item.keywords || [])
         .map((kwName) =>
           allKeywords.find(
-            (k) =>
-              k.name === kwName ||
-              k.name.toLowerCase() === kwName.toLowerCase()
+            (k) => k.name === kwName || k.name.toLowerCase() === kwName.toLowerCase()
           )
         )
         .filter(Boolean)
         .map((k) => k.id)
 
-      kwIds.forEach((id) => newNkEntries.push({ news_id: added.id, keyword_id: id }))
+      kwIds.forEach((id) => {
+        newNkEntries.push({ news_id: nextId, keyword_id: id })
+        if (sheetsAvailable) sheetsNkRows.push(newsKwToRow({ news_id: nextId, keyword_id: id }))
+      })
     }
 
+    // localStorage NewsKeywords 저장
     if (newNkEntries.length > 0) {
       setNewsKeywords([...getNewsKeywords(), ...newNkEntries])
     }
 
-    setSavedCount(toSave.length)
+    // Google Sheets append
+    if (sheetsAvailable && sheetsNewsRows.length > 0) {
+      try {
+        // 빈 시트에는 헤더 행 먼저 추가
+        if (newsSheetEmpty) await appendRows('News', [NEWS_COLUMNS])
+        await appendRows('News', sheetsNewsRows)
+
+        if (sheetsNkRows.length > 0) {
+          if (nkSheetEmpty) await appendRows('NewsKeywords', [NEWS_KW_COLUMNS])
+          await appendRows('NewsKeywords', sheetsNkRows)
+        }
+      } catch (err) {
+        setSheetsError(`Google Sheets 저장 실패: ${err.message}`)
+      }
+    }
+
+    setSaving(false)
+    setSavedCount(filtered.length)
+    setSkippedCount(skipped)
     onCollected && onCollected()
     setStep(4)
   }
@@ -484,7 +580,12 @@ export default function CollectModal({ onClose, onCollected }) {
           {step === 4 && (
             <div className="collect-success">
               <div className="collect-success-icon">✅</div>
-              <div className="collect-success-title">{savedCount}건이 DB에 저장됐습니다</div>
+              <div className="collect-success-title">
+                {savedCount}건 저장 완료
+                {skippedCount > 0 && (
+                  <span className="collect-success-skipped"> ({skippedCount}건 중복 제외)</span>
+                )}
+              </div>
               <div className="collect-success-meta">
                 <span>AI 수집 결과가 저장됐습니다 —</span>
                 <span className="url-status-badge url-verified" style={{ margin: '0 4px' }}>✅ 확인됨</span>
@@ -492,6 +593,11 @@ export default function CollectModal({ onClose, onCollected }) {
                 <span className="url-status-badge url-unverified" style={{ margin: '0 4px' }}>⚠️ AI 수집</span>
                 <span>상태로 구분됩니다</span>
               </div>
+              {sheetsError && (
+                <div className="collect-sheets-error">
+                  ⚠️ {sheetsError}
+                </div>
+              )}
               <div className="collect-success-desc">
                 DB 뷰어에서 확인하고, ⚠️ 항목은 URL을 직접 검토해주세요.
               </div>
@@ -529,9 +635,9 @@ export default function CollectModal({ onClose, onCollected }) {
                 <button
                   className="btn-primary"
                   onClick={handleSave}
-                  disabled={checkedIds.length === 0}
+                  disabled={checkedIds.length === 0 || saving}
                 >
-                  선택한 {checkedIds.length}건 DB에 저장
+                  {saving ? '저장 중...' : `선택한 ${checkedIds.length}건 DB에 저장`}
                 </button>
               )}
             </>
