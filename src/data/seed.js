@@ -9,13 +9,21 @@ export const seedTopicGroups = [
 ]
 
 export const seedKeywords = [
-  { id: 1, name: '난소암', priority: 1, color: '#e74c3c' },
-  { id: 2, name: '항체치료', priority: 2, color: '#e67e22' },
-  { id: 3, name: 'AI신약', priority: 3, color: '#3498db' },
-  { id: 4, name: 'CRISPR', priority: 4, color: '#2ecc71' },
-  { id: 5, name: 'LLM', priority: 5, color: '#9b59b6' },
-  { id: 6, name: '임상시험', priority: 6, color: '#1abc9c' },
-  { id: 7, name: '면역항암', priority: 7, color: '#f39c12' },
+  { id: 1,  name: '난소암',         priority: 1,  color: '#e74c3c' },
+  { id: 2,  name: '항체치료',       priority: 2,  color: '#e67e22' },
+  { id: 3,  name: 'AI신약',         priority: 3,  color: '#3498db' },
+  { id: 4,  name: 'CLDN6',          priority: 4,  color: '#2ecc71' },
+  { id: 5,  name: 'Napi2b',         priority: 5,  color: '#9b59b6' },
+  { id: 6,  name: '임상시험',       priority: 6,  color: '#1abc9c' },
+  { id: 7,  name: '면역항암',       priority: 7,  color: '#f39c12' },
+  { id: 8,  name: 'FOLR1',          priority: 8,  color: '#e91e63' },
+  { id: 9,  name: 'CDH6',           priority: 9,  color: '#00bcd4' },
+  { id: 10, name: '폐암',           priority: 10, color: '#ff5722' },
+  { id: 11, name: '대장암',         priority: 11, color: '#795548' },
+  { id: 12, name: '공모주',         priority: 12, color: '#607d8b' },
+  { id: 13, name: 'T cell engager', priority: 13, color: '#ff9800' },
+  { id: 14, name: 'CD3',            priority: 14, color: '#673ab7' },
+  { id: 15, name: '4-1BB',          priority: 15, color: '#009688' },
 ]
 
 export const seedNews = [
@@ -97,25 +105,26 @@ export const seedNews = [
 ]
 
 export const seedNewsKeywords = [
-  // 뉴스 1 (FDA ELAHERE) — 난소암, 항체치료, 임상시험
+  // 뉴스 1 (FDA ELAHERE) — 난소암, 항체치료, 임상시험, FOLR1
   { news_id: 1, keyword_id: 1 },
   { news_id: 1, keyword_id: 2 },
   { news_id: 1, keyword_id: 6 },
-  // 뉴스 2 (MIRASOL NEJM) — 난소암, 항체치료, 임상시험
+  { news_id: 1, keyword_id: 8 },
+  // 뉴스 2 (MIRASOL NEJM) — 난소암, 항체치료, 임상시험, FOLR1
   { news_id: 2, keyword_id: 1 },
   { news_id: 2, keyword_id: 2 },
   { news_id: 2, keyword_id: 6 },
+  { news_id: 2, keyword_id: 8 },
   // 뉴스 3 (OlympiAD NEJM) — 난소암, 임상시험
   { news_id: 3, keyword_id: 1 },
   { news_id: 3, keyword_id: 6 },
   // 뉴스 4 (AlphaFold Nature) — AI신약
   { news_id: 4, keyword_id: 3 },
-  // 뉴스 5 (RETFound Nature) — AI신약, LLM
+  // 뉴스 5 (RETFound Nature) — AI신약
   { news_id: 5, keyword_id: 3 },
-  { news_id: 5, keyword_id: 5 },
 ]
 
-// initDB는 항상 덮어씁니다 (데이터 교체 시 강제 리셋)
+// initDB는 항상 덮어씁니다 (키워드 업데이트 시 강제 리셋)
 export const initDB = () => {
   localStorage.setItem('news', JSON.stringify(seedNews))
   localStorage.setItem('keywords', JSON.stringify(seedKeywords))

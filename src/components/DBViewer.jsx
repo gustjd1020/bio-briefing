@@ -12,13 +12,15 @@ const SUBTABS = [
 ]
 
 // url_status 표시 기준:
-// verified → ✅ 확인됨 (사용자가 직접 접속 확인)
-// unknown  → ⚠️ 미확인
-// error    → ❌ 오류 (접속 불가 확인)
+// verified   → ✅ 확인됨   (사용자가 직접 접속 확인)
+// unverified → ⚠️ AI 수집  (AI가 찾은 medium confidence 항목)
+// unknown    → ⚠️ 미확인   (기본값)
+// error      → ❌ 오류     (접속 불가 확인)
 const URL_STATUS_BADGE = {
-  verified: { icon: '✅', label: '확인됨',  className: 'url-verified' },
-  unknown:  { icon: '⚠️', label: '미확인',  className: 'url-unknown' },
-  error:    { icon: '❌', label: '오류',    className: 'url-error' },
+  verified:   { icon: '✅', label: '확인됨',  className: 'url-verified'   },
+  unverified: { icon: '⚠️', label: 'AI 수집', className: 'url-unverified' },
+  unknown:    { icon: '⚠️', label: '미확인',  className: 'url-unknown'    },
+  error:      { icon: '❌', label: '오류',    className: 'url-error'      },
 }
 
 function TableView({ data, tableName, weekLabel }) {

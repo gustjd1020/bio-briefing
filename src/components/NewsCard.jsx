@@ -35,6 +35,9 @@ export default function NewsCard({ news, keywords, onUpdate, compact = false }) 
           {news.url_status === 'verified' && (
             <span className="url-status-badge url-verified" title="URL 직접 확인됨">✅</span>
           )}
+          {news.url_status === 'unverified' && (
+            <span className="url-status-badge url-unverified" title="AI 수집 (URL 미확인)">⚠️</span>
+          )}
           {news.url_status === 'error' && (
             <span className="url-status-badge url-error" title="URL 접속 불가">❌</span>
           )}
