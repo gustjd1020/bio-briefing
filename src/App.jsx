@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { getNews, getKeywords } from './data/db'
 import { initDB } from './data/seed'
 import Header from './components/Header'
@@ -25,6 +25,39 @@ export default function App() {
   const [selectedKeywordId, setSelectedKeywordId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [dbRefresh, setDbRefresh] = useState(0)
+
+  // ── 사이드바 너비 조절 ─────────────────────────
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = localStorage.getItem('sidebarWidth')
+    return saved ? parseInt(saved, 10) : 220
+  })
+  const [dragging, setDragging] = useState(false)
+  const sidebarWidthRef = useRef(sidebarWidth)
+
+  const handleDividerMouseDown = useCallback((e) => {
+    e.preventDefault()
+    const startX = e.clientX
+    const startWidth = sidebarWidthRef.current
+    setDragging(true)
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+
+    const onMove = (e) => {
+      const newWidth = Math.min(400, Math.max(120, startWidth + e.clientX - startX))
+      sidebarWidthRef.current = newWidth
+      setSidebarWidth(newWidth)
+    }
+    const onUp = () => {
+      setDragging(false)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+      localStorage.setItem('sidebarWidth', String(sidebarWidthRef.current))
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [])
 
   // ── 인증 ────────────────────────────────────
   const [authed, setAuthed] = useState(() => {
@@ -99,11 +132,17 @@ export default function App() {
       </nav>
 
       <div className="main-layout">
-        <Sidebar
-          keywords={keywords}
-          setKeywordsState={setKeywords}
-          selectedKeywordId={selectedKeywordId}
-          onSelectKeyword={handleSelectKeyword}
+        <div className="sidebar-wrapper" style={{ width: sidebarWidth, minWidth: sidebarWidth }}>
+          <Sidebar
+            keywords={keywords}
+            setKeywordsState={setKeywords}
+            selectedKeywordId={selectedKeywordId}
+            onSelectKeyword={handleSelectKeyword}
+          />
+        </div>
+        <div
+          className={`sidebar-divider${dragging ? ' dragging' : ''}`}
+          onMouseDown={handleDividerMouseDown}
         />
 
         <main className="main-content">
