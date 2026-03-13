@@ -1,5 +1,7 @@
 {
-  "rewrites": [
-    { "source": "/api/anthropic", "destination": "/api/anthropic" }
-  ]
+  "functions": {
+    "api/anthropic.js": {
+      "maxDuration": 30
+    }
+  }
 }

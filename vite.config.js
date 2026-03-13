@@ -7,10 +7,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       // Anthropic API 프록시 (CORS 우회용 — dev server only)
+      // /api/anthropic → https://api.anthropic.com/v1/messages
       '/api/anthropic': {
         target: 'https://api.anthropic.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/anthropic/, ''),
+        rewrite: () => '/v1/messages',
       },
     },
   },
