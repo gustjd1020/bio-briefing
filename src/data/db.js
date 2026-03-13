@@ -125,8 +125,9 @@ export const downloadAllAsZip = async () => {
 }
 
 // ── url_status 값 정의 ────────────────────────
-// 'verified' : 사용자가 직접 URL에 접속해 확인한 것
-// 'unknown'  : 아직 확인하지 않은 것 (기본값)
-// 'error'    : 접속 불가 확인된 것
+// 'verified'   : 사용자가 직접 URL에 접속해 확인한 것
+// 'unverified' : AI 수집 medium confidence (URL 미확인)
+// 'unknown'    : 아직 확인하지 않은 것 (기본값)
+// 'error'      : 접속 불가 확인된 것
 
 export { KEYS }

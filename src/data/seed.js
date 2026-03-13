@@ -130,8 +130,24 @@ export const seedNewsKeywords = [
   { news_id: 5, keyword_id: 3 },
 ]
 
-// initDB는 항상 덮어씁니다 (키워드 업데이트 시 강제 리셋)
+// ── 스마트 초기화 ────────────────────────────────────────────────────────
+// 뉴스·뉴스키워드 : 데이터가 없을 때만 시드 (사용자 추가 데이터 보호)
+// 키워드·토픽그룹 : 항상 최신 버전으로 덮어씀 (새 키워드 추가 즉시 반영)
 export const initDB = () => {
+  // 키워드·토픽그룹은 항상 최신 시드로 유지
+  localStorage.setItem('keywords', JSON.stringify(seedKeywords))
+  localStorage.setItem('topicGroups', JSON.stringify(seedTopicGroups))
+
+  // 뉴스·뉴스키워드는 최초 1회만 (기존 데이터 있으면 건너뜀)
+  if (!localStorage.getItem('news')) {
+    localStorage.setItem('news', JSON.stringify(seedNews))
+    localStorage.setItem('newsKeywords', JSON.stringify(seedNewsKeywords))
+  }
+}
+
+// ── 강제 리셋 (개발/디버그용) ────────────────────────────────────────────
+// 필요할 때만 직접 호출
+export const resetDB = () => {
   localStorage.setItem('news', JSON.stringify(seedNews))
   localStorage.setItem('keywords', JSON.stringify(seedKeywords))
   localStorage.setItem('newsKeywords', JSON.stringify(seedNewsKeywords))
