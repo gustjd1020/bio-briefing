@@ -62,6 +62,12 @@ export default async function handler(req, res) {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
   const privateKey = (process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '').replace(/\\n/g, '\n')
 
+  // ── 헬스체크: ?ping=1 → 환경변수 설정 여부만 확인 ──────────────
+  if (req.query.ping === '1') {
+    const configured = !!(sheetId && email && privateKey)
+    return res.status(200).json({ ok: configured, configured })
+  }
+
   if (!sheetId || !email || !privateKey) {
     return res.status(500).json({ error: 'Google Sheets 환경 변수가 설정되지 않았습니다.' })
   }
