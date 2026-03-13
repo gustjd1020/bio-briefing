@@ -1,13 +1,6 @@
 import React, { useState } from 'react'
 import { getKeywords, addNews, getNews, getNewsKeywords, setNewsKeywords } from '../data/db'
-import {
-  getSheetRows,
-  appendRows,
-  newsToRow,
-  newsKwToRow,
-  NEWS_COLUMNS,
-  NEWS_KW_COLUMNS,
-} from '../data/sheets'
+import { getSheet, appendToSheet } from '../data/sheets'
 
 // ── 출처 목록 ────────────────────────────────
 const SOURCES = [
@@ -181,12 +174,9 @@ export default function CollectModal({ onClose, onCollected }) {
     let existingTitles = new Set()
     let sheetsMaxId = 0
     let sheetsAvailable = false
-    let newsSheetEmpty = false
-    let nkSheetEmpty = false
 
     try {
-      const rows = await getSheetRows('News')
-      newsSheetEmpty = rows.length === 0
+      const rows = await getSheet('News')
       rows.forEach((r) => {
         if (r.url && r.url !== '#') existingUrls.add(r.url)
         if (r.title) existingTitles.add(r.title)
@@ -195,25 +185,16 @@ export default function CollectModal({ onClose, onCollected }) {
       sheetsMaxId = ids.length ? Math.max(...ids) : 0
       sheetsAvailable = true
     } catch {
-      // Google Sheets 연결 불가 → localStorage에만 저장 (정상 degradation)
+      // Google Sheets 연결 불가 → localStorage에만 저장 (graceful degradation)
       sheetsAvailable = false
     }
 
-    if (sheetsAvailable) {
-      try {
-        const nkRows = await getSheetRows('NewsKeywords')
-        nkSheetEmpty = nkRows.length === 0
-      } catch {
-        nkSheetEmpty = true
-      }
-    }
-
-    // ── 2. 중복 필터링 ────────────────────────────────────────────
+    // ── 2. 중복 필터링 ─────────────────────────────────────────────
     const filtered = sheetsAvailable
       ? toSave.filter((item) => {
           const url = item.url && item.url !== '#' ? item.url : null
-          if (url) return !existingUrls.has(url)          // URL 기준
-          return !existingTitles.has(item.title)           // URL 없으면 제목 기준
+          if (url) return !existingUrls.has(url)     // URL 기준
+          return !existingTitles.has(item.title)     // URL 없으면 제목 기준
         })
       : toSave   // Sheets 연결 불가 시 전부 저장
 
@@ -226,11 +207,10 @@ export default function CollectModal({ onClose, onCollected }) {
     })()
     let nextId = Math.max(sheetsMaxId, localMaxId)
 
-    // ── 4. 저장 (localStorage + Google Sheets) ───────────────────
+    // ── 4. 저장 (localStorage + Google Sheets) ─────────────────────
     const weekLabel = getCurrentWeekLabel()
     const newNkEntries = []
-    const sheetsNewsRows = []
-    const sheetsNkRows = []
+    const sheetsNkEntries = []
 
     for (const item of filtered) {
       nextId += 1
@@ -250,11 +230,18 @@ export default function CollectModal({ onClose, onCollected }) {
         url_status: urlStatus,
       }
 
-      // localStorage 저장 (id 지정)
+      // localStorage 저장
       addNews(newsObj)
 
-      // Google Sheets 행 준비
-      if (sheetsAvailable) sheetsNewsRows.push(newsToRow(newsObj))
+      // Google Sheets 저장 (실패 시 이후 항목도 중단)
+      if (sheetsAvailable) {
+        try {
+          await appendToSheet('News', newsObj)
+        } catch (err) {
+          sheetsAvailable = false
+          setSheetsError(`Google Sheets 저장 실패 — localStorage에만 저장됩니다: ${err.message}`)
+        }
+      }
 
       // 키워드 매핑 (이름 기반, 대소문자 무시)
       const kwIds = (item.keywords || [])
@@ -266,9 +253,9 @@ export default function CollectModal({ onClose, onCollected }) {
         .filter(Boolean)
         .map((k) => k.id)
 
-      kwIds.forEach((id) => {
-        newNkEntries.push({ news_id: nextId, keyword_id: id })
-        if (sheetsAvailable) sheetsNkRows.push(newsKwToRow({ news_id: nextId, keyword_id: id }))
+      kwIds.forEach((kwId) => {
+        newNkEntries.push({ news_id: nextId, keyword_id: kwId })
+        if (sheetsAvailable) sheetsNkEntries.push({ news_id: nextId, keyword_id: kwId })
       })
     }
 
@@ -277,19 +264,14 @@ export default function CollectModal({ onClose, onCollected }) {
       setNewsKeywords([...getNewsKeywords(), ...newNkEntries])
     }
 
-    // Google Sheets append
-    if (sheetsAvailable && sheetsNewsRows.length > 0) {
+    // Google Sheets NewsKeywords 저장
+    if (sheetsAvailable && sheetsNkEntries.length > 0) {
       try {
-        // 빈 시트에는 헤더 행 먼저 추가
-        if (newsSheetEmpty) await appendRows('News', [NEWS_COLUMNS])
-        await appendRows('News', sheetsNewsRows)
-
-        if (sheetsNkRows.length > 0) {
-          if (nkSheetEmpty) await appendRows('NewsKeywords', [NEWS_KW_COLUMNS])
-          await appendRows('NewsKeywords', sheetsNkRows)
+        for (const nk of sheetsNkEntries) {
+          await appendToSheet('NewsKeywords', nk)
         }
-      } catch (err) {
-        setSheetsError(`Google Sheets 저장 실패: ${err.message}`)
+      } catch {
+        // NK 저장 실패는 무시 (뉴스 자체는 이미 저장됨)
       }
     }
 

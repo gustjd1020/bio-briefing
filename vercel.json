@@ -2,9 +2,6 @@
   "functions": {
     "api/anthropic.js": {
       "maxDuration": 60
-    },
-    "api/sheets.js": {
-      "maxDuration": 30
     }
   }
 }
