@@ -12,10 +12,10 @@ import LoginScreen from './components/LoginScreen'
 import './App.css'
 
 const TABS = [
-  { id: 'briefing', label: '주간 브리핑', icon: '📋' },
-  { id: 'all', label: '전체 뉴스', icon: '📰' },
-  { id: 'keyword', label: '키워드별', icon: '🔖' },
-  { id: 'db', label: 'DB 뷰어', icon: '🗄️' },
+  { id: 'briefing', label: '주간 브리핑', shortLabel: '브리핑', icon: '📋' },
+  { id: 'all', label: '전체 뉴스', shortLabel: '전체', icon: '📰' },
+  { id: 'keyword', label: '키워드별', shortLabel: '키워드', icon: '🔖' },
+  { id: 'db', label: 'DB 뷰어', shortLabel: 'DB', icon: '🗄️' },
 ]
 
 export default function App() {
@@ -25,6 +25,7 @@ export default function App() {
   const [selectedKeywordId, setSelectedKeywordId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [dbRefresh, setDbRefresh] = useState(0)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // ── 사이드바 너비 조절 ─────────────────────────
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -127,6 +128,7 @@ export default function App() {
           >
             <span className="nav-icon">{t.icon}</span>
             <span className="nav-label">{t.label}</span>
+            <span className="nav-label-short">{t.shortLabel}</span>
           </button>
         ))}
       </nav>
@@ -146,6 +148,11 @@ export default function App() {
         />
 
         <main className="main-content">
+          {/* 모바일 전용: 키워드 필터 버튼 */}
+          <button className="mobile-filter-btn" onClick={() => setDrawerOpen(true)}>
+            🔖 키워드 필터
+          </button>
+
           {activeTab === 'briefing' && (
             <WeeklyBriefing news={news} onUpdate={handleUpdate} />
           )}
@@ -166,6 +173,24 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* 모바일 사이드바 드로어 (바텀시트) */}
+      {drawerOpen && (
+        <div className="drawer-overlay" onClick={() => setDrawerOpen(false)}>
+          <div className="drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <span>🔖 키워드 필터</span>
+              <button className="drawer-close" onClick={() => setDrawerOpen(false)}>✕</button>
+            </div>
+            <Sidebar
+              keywords={keywords}
+              setKeywordsState={setKeywords}
+              selectedKeywordId={selectedKeywordId}
+              onSelectKeyword={(id) => { handleSelectKeyword(id); setDrawerOpen(false) }}
+            />
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <CollectModal

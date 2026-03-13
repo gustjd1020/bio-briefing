@@ -71,7 +71,7 @@ function TableView({ data, tableName, weekLabel }) {
               {data.map((row, ri) => (
                 <tr key={ri}>
                   {columns.map((col) => (
-                    <td key={col}>
+                    <td key={col} data-label={col}>
                       {formatCell(row[col], col)}
                     </td>
                   ))}

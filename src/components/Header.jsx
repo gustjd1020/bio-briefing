@@ -22,7 +22,7 @@ export default function Header({ onCollect, theme }) {
           <span className="header-logo-sub">AI/바이오 인텔리전스</span>
         </div>
         <button className="btn-collect" onClick={onCollect}>
-          <span>⚡</span> 뉴스 수집
+          <span>⚡</span><span className="btn-collect-text"> 뉴스 수집</span>
         </button>
       </div>
     </header>
