@@ -29,10 +29,10 @@ export const seedKeywords = [
 export const seedNews = [
   {
     id: 1,
-    title: 'FDA Approves ELAHERE (mirvetuximab soravtansine-gynx) for FRα-Positive Platinum-Resistant Ovarian Cancer',
+    title: 'FDA Grants Accelerated Approval to Mirvetuximab Soravtansine-gynx (ELAHERE) for FRα-Positive Platinum-Resistant Ovarian Cancer',
     summary:
       'FDA가 FRα 과발현 백금 저항성 상피성 난소암 성인 환자 치료에 ImmunoGen의 항체-약물 접합체(ADC) mirvetuximab soravtansine(ELAHERE)을 정식 승인했다. 이는 FRα를 표적으로 한 최초의 FDA 승인 치료제다. SORAYA 단일군 임상에서 ORR 31.7%, 중앙 반응 지속기간 6.9개월을 기록했다.',
-    url: 'https://www.fda.gov/drugs/drug-approvals-and-databases/drug-approval-package-elahere-mirvetuximab-soravtansine-gynx',
+    url: 'https://www.fda.gov/drugs/resources-information-approved-drugs/fda-grants-accelerated-approval-mirvetuximab-soravtansine-gynx-fra-positive-platinum-resistant',
     source_name: 'FDA',
     published_at: '2022-11-14',
     topic_group_id: 1,
